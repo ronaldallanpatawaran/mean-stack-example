@@ -9,8 +9,6 @@ import { PostsService } from '../post.service'
   styleUrls: ['./post-create.component.css']
 })
 export class PostCreateComponent {
-  enteredContent = ''
-  enteredTitle= ''
   insertTitleLabel = 'Post Title'
   insertContentLabel = 'Post Content'
   errorTitleLabel = 'Please inser a valid title'

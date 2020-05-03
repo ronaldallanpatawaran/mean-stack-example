@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core'
 import { HttpClient } from '@angular/common/http'
 import { Subject } from 'rxjs'
+import { map } from 'rxjs/operators'
 
 import { Post } from './post.model'
 
@@ -8,13 +9,23 @@ import { Post } from './post.model'
 export class PostsService {
   private posts: Post[] = []
   private postsUpdated = new Subject<Post[]>()
+  private urlPath = 'http://localhost:3000/api/posts'
 
   constructor (private http: HttpClient) {}
 
   getPosts () {
-    this.http.get<{ message: string, posts: Post[] }>('http://localhost:3000/api/posts')
-      .subscribe((postData)=> {
-        this.posts = postData.posts
+    this.http.get<{ message: string, posts: any }>(this.urlPath)
+      .pipe(map((postData)=> {
+        return postData.posts.map(post => {
+          return {
+            id: post._id,
+            title: post.title,
+            content: post.content
+          }
+        })
+      }))
+      .subscribe((transformedPosts)=> {
+        this.posts = transformedPosts
         this.postsUpdated.next([...this.posts])
       })
   }
@@ -25,11 +36,18 @@ export class PostsService {
 
   addPost (title: string, content: string) {
     const post: Post = { id: null, title, content }
-    this.http.post<{ message: string }>('http://localhost:3000/api/posts', post)
+    this.http.post<{ message: string }>(this.urlPath, post)
       .subscribe((responseData=> {
         console.log(responseData)
       }))
     this.posts.push(post)
     this.postsUpdated.next([...this.posts])
+  }
+
+  deletePost (id: string) {
+    this.http.delete<{ message: string }>(this.urlPath, { params: { id } })
+      .subscribe((responseData=> {
+        console.log(responseData)
+      }))
   }
 }

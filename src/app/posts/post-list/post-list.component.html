@@ -6,7 +6,7 @@
     <p>{{ post.content }}</p>
     <mat-action-row>
       <button mat-button color="primary">{{ buttonEditTxt.toUpperCase() }}</button>
-      <button mat-button color="warn">{{ buttonDeleteTxt.toUpperCase() }}</button>
+      <button mat-button color="warn" (click)="onDelete(post.id)">{{ buttonDeleteTxt.toUpperCase() }}</button>
     </mat-action-row>
   </mat-expansion-panel>
 </mat-accordion>
