@@ -34,20 +34,41 @@ export class PostsService {
     return this.postsUpdated.asObservable()
   }
 
+  getPost (id: string) {
+    return { ...this.posts.find(p => p.id === id) }
+  }
+
   addPost (title: string, content: string) {
     const post: Post = { id: null, title, content }
-    this.http.post<{ message: string }>(this.urlPath, post)
+    this.http.post<{ message: string, postId: string }>(this.urlPath, post)
       .subscribe((responseData=> {
-        console.log(responseData)
+        const postId = responseData.postId
+        post.id = postId
+        this.posts.push(post)
+        this.postsUpdated.next([...this.posts])
       }))
-    this.posts.push(post)
-    this.postsUpdated.next([...this.posts])
+  }
+
+  updatePost (id: string, title: string, content: string) {
+    const post: Post = { id, title, content }
+    this.http.patch<{ message: string, postId: string }>(`${this.urlPath}/${id}`, post)
+    .subscribe((responseData=> {
+      const updatedPosts = [...this.posts]
+      const oldPostIndex = updatedPosts.findIndex(p=>p.id === post.id)
+      updatedPosts[oldPostIndex] = post
+      this.posts = updatedPosts
+      this.postsUpdated.next([...this.posts])
+    }))
   }
 
   deletePost (id: string) {
-    this.http.delete<{ message: string }>(this.urlPath, { params: { id } })
+    this.http.delete<{ message: string, postId: string }>(`${this.urlPath}/${id}`)
       .subscribe((responseData=> {
-        console.log(responseData)
+        this.posts = this.posts.filter((postData)=> {
+          return postData.id !== responseData.postId
+        })
+        this.postsUpdated.next([...this.posts])
       }))
   }
+
 }

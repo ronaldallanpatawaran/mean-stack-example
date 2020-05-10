@@ -34,11 +34,13 @@ app.post('/api/posts', (req, res, next)=>{
     title: req.body.title,
     content: req.body.content
   })
-  post.save()
-  res.status(201)
-    .json({
-      message: 'Post added successfully'
-    })
+  post.save().then((createdData)=> {
+    res.status(201)
+      .json({
+        message: 'Post added successfully',
+        postId: createdData._id
+      })
+  })
 })
 
 app.get('/api/posts', (req, res, next)=>{
@@ -52,13 +54,32 @@ app.get('/api/posts', (req, res, next)=>{
   })
 })
 
-app.delete('/api/posts/:id', (req, res)=> {
-  const id = req.params.id
-  Post.deleteOne(id)
-    .then((response)=> {
+app.patch('/api/posts/:id', (req, res)=> {
+  const post = new Post(
+      {
+        _id: req.body.id,
+        title: req.body.title,
+        content: req.body.content
+      }
+    )
+    Post.updateOne({ _id: req.params.id }, post).then((result)=> {
+      console.log(result)
       res.status(200)
       .json({
-        message: 'Post successfully deleted!'
+        message: 'Post successfully updated!',
+        postId: result._id
+      })
+    })
+})
+
+app.delete('/api/posts/:id', (req, res)=> {
+  const postId = req.params.id
+  Post.deleteOne({ _id: postId })
+    .then(()=> {
+      res.status(200)
+      .json({
+        message: 'Post successfully deleted!',
+        postId
       })
     })
 })
