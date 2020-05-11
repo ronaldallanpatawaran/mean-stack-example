@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { NgForm } from '@angular/forms'
+import { NgForm, FormGroup, FormControl, Validators } from '@angular/forms'
 import { ActivatedRoute } from '@angular/router';
 
 import { PostsService } from '../post.service'
@@ -17,6 +17,7 @@ export class PostCreateComponent implements OnInit {
   errorContentLabel = 'Please insert a valid title'
   post: Post
   isLoading = false
+  form: FormGroup
 
   private mode = 'create'
   private postId: string
@@ -28,6 +29,11 @@ export class PostCreateComponent implements OnInit {
 
   ngOnInit () {
     const vm = this
+    vm.form = new FormGroup({
+      title: new FormControl(null, {validators: [Validators.required, Validators.minLength(3)]}),
+      content: new FormControl(null, {validators: [Validators.required]}),
+      image: new FormControl(null, {validators: [Validators.required]})
+    })
     vm.route.paramMap.subscribe((paramMap)=> {
       if (paramMap.has('postId')) {
         vm.mode = 'edit'
@@ -35,7 +41,11 @@ export class PostCreateComponent implements OnInit {
         vm.isLoading = true
         this.postsService.getPost(vm.postId).subscribe(postData => {
           vm.isLoading = false
-          this.post = { id: postData.posts._id, title: postData.posts.title, content: postData.posts.content }
+          vm.post = { id: postData.posts._id, title: postData.posts.title, content: postData.posts.content }
+          vm.form.setValue({
+            title: vm.post.title,
+            content: vm.post.content
+          })
         })
       } else {
         vm.mode = 'create'
@@ -44,21 +54,27 @@ export class PostCreateComponent implements OnInit {
     })
   }
 
-  onSavePost (form: NgForm) {
+  onImagePicked (event: Event){
+    const file = (event.target as HTMLInputElement).files[0]
+    this.form.patchValue({ image: file })
+    this.form.get('image').updateValueAndValidity()
+  }
+
+  onSavePost () {
     const vm = this
-    if (form.invalid) {
+    if (vm.form.invalid) {
       return
     }
     vm.isLoading = true
     if (vm.mode === 'create') {
-      vm.postsService.addPost(form.value.title, form.value.content)
+      vm.postsService.addPost(vm.form.value.title, vm.form.value.content)
     } else {
       vm.postsService.updatePost(
         vm.postId,
-        form.value.title,
-        form.value.content
+        vm.form.value.title,
+        vm.form.value.content
       )
     }
-    form.resetForm()
+    vm.form.reset()
   }
 }
