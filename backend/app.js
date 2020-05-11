@@ -43,13 +43,30 @@ app.post('/api/posts', (req, res, next)=>{
   })
 })
 
-app.get('/api/posts', (req, res, next)=>{
+app.get('/api/posts', (req, res)=>{
   Post.find()
   .then((documents)=> {
     res.status(200)
       .json({
         message: 'Post fetched successfully!',
         posts: documents
+      })
+  })
+})
+
+app.get('/api/posts/:id', (req, res)=>{
+  Post.findById(req.params.id)
+  .then((post)=> {
+    if (post) {
+      return res.status(200)
+        .json({
+          message: 'Post fetched successfully!',
+          posts: post
+        })
+    }
+    res.status(404)
+      .json({
+        message: 'Post not found!'
       })
   })
 })

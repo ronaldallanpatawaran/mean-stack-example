@@ -35,7 +35,7 @@ export class PostsService {
   }
 
   getPost (id: string) {
-    return { ...this.posts.find(p => p.id === id) }
+    return this.http.get<{ message: string, posts: any }>(`${this.urlPath}/${id}`)
   }
 
   addPost (title: string, content: string) {
