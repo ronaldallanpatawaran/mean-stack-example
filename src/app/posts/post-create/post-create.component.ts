@@ -13,9 +13,10 @@ import { Post } from '../post.model';
 export class PostCreateComponent implements OnInit {
   insertTitleLabel = 'Post Title'
   insertContentLabel = 'Post Content'
-  errorTitleLabel = 'Please inser a valid title'
-  errorContentLabel = 'Please inser a valid title'
+  errorTitleLabel = 'Please insert a valid title'
+  errorContentLabel = 'Please insert a valid title'
   post: Post
+  isLoading = false
 
   private mode = 'create'
   private postId: string
@@ -31,7 +32,9 @@ export class PostCreateComponent implements OnInit {
       if (paramMap.has('postId')) {
         vm.mode = 'edit'
         vm.postId = paramMap.get('postId')
+        vm.isLoading = true
         this.postsService.getPost(vm.postId).subscribe(postData => {
+          vm.isLoading = false
           this.post = { id: postData.posts._id, title: postData.posts.title, content: postData.posts.content }
         })
       } else {
@@ -42,14 +45,16 @@ export class PostCreateComponent implements OnInit {
   }
 
   onSavePost (form: NgForm) {
+    const vm = this
     if (form.invalid) {
       return
     }
-    if (this.mode === 'create') {
-      this.postsService.addPost(form.value.title, form.value.content)
+    vm.isLoading = true
+    if (vm.mode === 'create') {
+      vm.postsService.addPost(form.value.title, form.value.content)
     } else {
-      this.postsService.updatePost(
-        this.postId,
+      vm.postsService.updatePost(
+        vm.postId,
         form.value.title,
         form.value.content
       )

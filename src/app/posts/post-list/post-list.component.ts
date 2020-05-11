@@ -16,13 +16,16 @@ export class PostListComponent implements OnInit, OnDestroy {
   buttonDeleteTxt = 'Delete'
   posts: Post[] = []
   noPostYetMessage = 'No post yet here.'
+  isLoading = false
 
   constructor (public postsService: PostsService) {}
 
   ngOnInit () {
+    this.isLoading = true
     this.postsService.getPosts()
     this.postsSubs = this.postsService.getPostUpdateListener()
       .subscribe((posts: Post[])=> {
+        this.isLoading = false
         this.posts = posts
       })
   }

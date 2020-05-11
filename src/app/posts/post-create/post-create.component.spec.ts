@@ -28,10 +28,10 @@ describe('PostCreateComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  it('should have property function onAddPost', () => {
+  it('should have property function onSavePost', () => {
     const fixture = TestBed.createComponent(PostCreateComponent);
     const app = fixture.componentInstance;
-    expect(app.onAddPost).toBeTruthy();
+    expect(app.onSavePost).toBeTruthy();
   });
 
   it('should have property function insertTitleLabel', () => {
