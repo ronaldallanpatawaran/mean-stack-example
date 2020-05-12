@@ -79,7 +79,7 @@ export class PostCreateComponent implements OnInit {
     }
     vm.isLoading = true
     if (vm.mode === 'create') {
-      vm.postsService.addPost(vm.form.value.title, vm.form.value.content)
+      vm.postsService.addPost(vm.form.value.title, vm.form.value.content, vm.form.value.image)
     } else {
       vm.postsService.updatePost(
         vm.postId,
