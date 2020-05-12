@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { NgForm, FormGroup, FormControl, Validators } from '@angular/forms'
+import { FormGroup, FormControl, Validators } from '@angular/forms'
 import { ActivatedRoute } from '@angular/router';
 
 import { PostsService } from '../post.service'
 import { Post } from '../post.model';
+import { mimeType } from './mime-type.validator'
 
 @Component({
   selector: 'app-post-create',
@@ -18,6 +19,7 @@ export class PostCreateComponent implements OnInit {
   post: Post
   isLoading = false
   form: FormGroup
+  imagePreview: string
 
   private mode = 'create'
   private postId: string
@@ -30,9 +32,14 @@ export class PostCreateComponent implements OnInit {
   ngOnInit () {
     const vm = this
     vm.form = new FormGroup({
-      title: new FormControl(null, {validators: [Validators.required, Validators.minLength(3)]}),
-      content: new FormControl(null, {validators: [Validators.required]}),
-      image: new FormControl(null, {validators: [Validators.required]})
+      title: new FormControl(null, {
+        validators: [Validators.required, Validators.minLength(3)]}),
+      content: new FormControl(null, {
+        validators: [Validators.required]}),
+      image: new FormControl(null, {
+        validators: [Validators.required],
+        asyncValidators: [mimeType]
+      })
     })
     vm.route.paramMap.subscribe((paramMap)=> {
       if (paramMap.has('postId')) {
@@ -58,6 +65,11 @@ export class PostCreateComponent implements OnInit {
     const file = (event.target as HTMLInputElement).files[0]
     this.form.patchValue({ image: file })
     this.form.get('image').updateValueAndValidity()
+    const reader = new FileReader()
+    reader.readAsDataURL(file)
+    reader.onload = () => {
+      this.imagePreview = reader.result as string
+    }
   }
 
   onSavePost () {
