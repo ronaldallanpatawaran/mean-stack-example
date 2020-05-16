@@ -9,26 +9,35 @@ import { Post } from './post.model'
 @Injectable({ providedIn: 'root' })
 export class PostsService {
   private posts: Post[] = []
-  private postsUpdated = new Subject<Post[]>()
+  private postsUpdated = new Subject<{ posts: Post[], postCount: number }>()
   private urlPath = 'http://localhost:3000/api/posts'
 
   constructor (private http: HttpClient, private router: Router) {}
 
-  getPosts () {
-    this.http.get<{ message: string, posts: any }>(this.urlPath)
-      .pipe(map((postData)=> {
-        return postData.posts.map(post => {
+  getPosts (page?: number, pageSize?: number) {
+    let qs = ''
+    if (page && pageSize) {
+      qs = `?page=${page}&pageSize=${pageSize}`
+    }
+    this.http.get<{ message: string, posts: any, postCount: number }>(this.urlPath + qs)
+      .pipe(
+        map((postData)=> {
           return {
-            id: post._id,
-            title: post.title,
-            content: post.content,
-            imagePath: post.imagePath
+            posts: postData.posts.map(post => {
+              return {
+                id: post._id,
+                title: post.title,
+                content: post.content,
+                imagePath: post.imagePath
+              }
+            }),
+            postCount: postData.postCount
           }
         })
-      }))
+      )
       .subscribe((transformedPosts)=> {
-        this.posts = transformedPosts
-        this.postsUpdated.next([...this.posts])
+        this.posts = transformedPosts.posts
+        this.postsUpdated.next({ posts: [...this.posts], postCount: transformedPosts.postCount })
       })
   }
 
@@ -47,14 +56,6 @@ export class PostsService {
     postData.append('image', image, title)
     this.http.post<{ message: string, post: Post }>(this.urlPath, postData)
       .subscribe((responseData=> {
-        const post: Post = {
-          id: responseData.post.id,
-          title: responseData.post.title,
-          content: responseData.post.content,
-          imagePath: responseData.post.imagePath
-        }
-        this.posts.push(post)
-        this.postsUpdated.next([...this.posts])
         this.router.navigate(['/'])
       }))
   }
@@ -77,29 +78,12 @@ export class PostsService {
     }
     this.http.patch<{ message: string, posts: Post[] }>(`${this.urlPath}/${id}`, postData)
     .subscribe((responseData=> {
-      const updatedPosts = [...this.posts]
-      const oldPostIndex = updatedPosts.findIndex(p=>p.id === id)
-      const post: Post = {
-        id,
-        title,
-        content,
-        imagePath: null
-      }
-      updatedPosts[oldPostIndex] = post
-      this.posts = updatedPosts
-      this.postsUpdated.next([...this.posts])
       this.router.navigate(['/'])
     }))
   }
 
   deletePost (id: string) {
-    this.http.delete<{ message: string, postId: string }>(`${this.urlPath}/${id}`)
-      .subscribe((responseData=> {
-        this.posts = this.posts.filter((postData)=> {
-          return postData.id !== responseData.postId
-        })
-        this.postsUpdated.next([...this.posts])
-      }))
+    return this.http.delete<{ message: string, postId: string }>(`${this.urlPath}/${id}`)
   }
 
 }

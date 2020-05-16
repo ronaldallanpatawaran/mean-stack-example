@@ -7,7 +7,9 @@ const postsRoutes = require('./routes/post')
 
 const app = express();
 
-mongoose.connect('mongodb+srv://ronaldallanpatawaran:pDa5oc9r4AeDKOaZ@cluster0-souxd.mongodb.net/node-angular?retryWrites=true&w=majority')
+mongoose.connect(
+  'mongodb+srv://ronaldallanpatawaran:pDa5oc9r4AeDKOaZ@cluster0-souxd.mongodb.net/node-angular?retryWrites=true&w=majority',
+  { useNewUrlParser: true, useUnifiedTopology: true })
   .then(()=> {
     console.info('Connected to database!')
   }).catch(()=> {

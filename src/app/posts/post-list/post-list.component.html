@@ -15,3 +15,10 @@
   </mat-expansion-panel>
 </mat-accordion>
 <p class="mat-body-1" *ngIf="posts.length <= 0 && !isLoading">{{ noPostYetMessage }}</p>
+<mat-paginator
+  *ngIf="posts.length > 0"
+  (page)="onChangedPage($event)"
+  [length]="totalPosts"
+  [pageSize]="postPerpage"
+  [pageSizeOptions]="pageSizeOption">
+</mat-paginator>

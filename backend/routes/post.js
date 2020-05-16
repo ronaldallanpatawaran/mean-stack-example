@@ -49,12 +49,22 @@ router.post('', multer({ storage }).single('image'), (req, res, next)=>{
 })
 
 router.get('/', (req, res)=>{
+  const currentPage = req.query.page ? +req.query.page : 0
+  const pageSize = req.query.pageSize ? +req.query.pageSize : 1000
+
   Post.find()
+  .skip(pageSize * (currentPage - 1))
+  .limit(pageSize)
   .then((documents)=> {
+    fetchedDocuments = documents
+    return Post.countDocuments()
+  })
+  .then((postCount)=> {
     res.status(200)
       .json({
         message: 'Post fetched successfully!',
-        posts: documents
+        posts: fetchedDocuments,
+        postCount
       })
   })
 })
