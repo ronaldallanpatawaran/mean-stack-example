@@ -21,7 +21,8 @@ export class PostsService {
           return {
             id: post._id,
             title: post.title,
-            content: post.content
+            content: post.content,
+            imagePath: post.imagePath
           }
         })
       }))
@@ -36,7 +37,7 @@ export class PostsService {
   }
 
   getPost (id: string) {
-    return this.http.get<{ message: string, posts: any }>(`${this.urlPath}/${id}`)
+    return this.http.get<{ message: string, posts: { _id: string, title: string, content: string, imagePath: string } }>(`${this.urlPath}/${id}`)
   }
 
   addPost (title: string, content: string, image: File) {
@@ -44,13 +45,13 @@ export class PostsService {
     postData.append('title', title)
     postData.append('content', content)
     postData.append('image', image, title)
-    const post: Post = { id: null, title, content }
-    this.http.post<{ message: string, postId: string }>(this.urlPath, postData)
+    this.http.post<{ message: string, post: Post }>(this.urlPath, postData)
       .subscribe((responseData=> {
         const post: Post = {
-          id: responseData.postId,
-          title: title,
-          content: content
+          id: responseData.post.id,
+          title: responseData.post.title,
+          content: responseData.post.content,
+          imagePath: responseData.post.imagePath
         }
         this.posts.push(post)
         this.postsUpdated.next([...this.posts])
@@ -58,12 +59,32 @@ export class PostsService {
       }))
   }
 
-  updatePost (id: string, title: string, content: string) {
-    const post: Post = { id, title, content }
-    this.http.patch<{ message: string, postId: string }>(`${this.urlPath}/${id}`, post)
+  updatePost (id: string, title: string, content: string, image: File | string) {
+    let postData: FormData | Post
+    if (typeof image === 'object') {
+      postData = new FormData()
+      postData.append('id', id)
+      postData.append('title', title)
+      postData.append('content', content)
+      postData.append('image', image, title)
+    } else {
+      postData = {
+        id,
+        title,
+        content,
+        imagePath: image
+      }
+    }
+    this.http.patch<{ message: string, posts: Post[] }>(`${this.urlPath}/${id}`, postData)
     .subscribe((responseData=> {
       const updatedPosts = [...this.posts]
-      const oldPostIndex = updatedPosts.findIndex(p=>p.id === post.id)
+      const oldPostIndex = updatedPosts.findIndex(p=>p.id === id)
+      const post: Post = {
+        id,
+        title,
+        content,
+        imagePath: null
+      }
       updatedPosts[oldPostIndex] = post
       this.posts = updatedPosts
       this.postsUpdated.next([...this.posts])

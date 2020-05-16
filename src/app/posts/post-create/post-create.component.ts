@@ -48,11 +48,13 @@ export class PostCreateComponent implements OnInit {
         vm.isLoading = true
         this.postsService.getPost(vm.postId).subscribe(postData => {
           vm.isLoading = false
-          vm.post = { id: postData.posts._id, title: postData.posts.title, content: postData.posts.content }
+          vm.post = { id: postData.posts._id, title: postData.posts.title, content: postData.posts.content, imagePath: postData.posts.imagePath }
           vm.form.setValue({
             title: vm.post.title,
-            content: vm.post.content
+            content: vm.post.content,
+            image: vm.post.imagePath,
           })
+          vm.imagePreview = vm.post.imagePath
         })
       } else {
         vm.mode = 'create'
@@ -84,7 +86,8 @@ export class PostCreateComponent implements OnInit {
       vm.postsService.updatePost(
         vm.postId,
         vm.form.value.title,
-        vm.form.value.content
+        vm.form.value.content,
+        vm.form.value.image
       )
     }
     vm.form.reset()
