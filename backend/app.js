@@ -4,12 +4,18 @@ const mongoose = require('mongoose')
 const path = require('path')
 
 const postsRoutes = require('./routes/post')
+const userRoutes = require('./routes/user')
 
 const app = express();
 
 mongoose.connect(
   'mongodb+srv://ronaldallanpatawaran:pDa5oc9r4AeDKOaZ@cluster0-souxd.mongodb.net/node-angular?retryWrites=true&w=majority',
-  { useNewUrlParser: true, useUnifiedTopology: true })
+    {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      useCreateIndex: true
+    }
+  )
   .then(()=> {
     console.info('Connected to database!')
   }).catch(()=> {
@@ -34,6 +40,7 @@ app.use((req, res, next)=> {
 })
 
 app.use('/api/posts', postsRoutes)
+app.use('/api/user', userRoutes)
 
 module.exports = app;
 
