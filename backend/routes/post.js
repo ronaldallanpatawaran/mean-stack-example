@@ -10,6 +10,8 @@ const mimeTypeMap = {
 }
 
 const Post = require('../models/post')
+const isAuthenticated = require('../middlewares/isAuthenticated')
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const isValid = mimeTypeMap[file.mimetype]
@@ -26,7 +28,10 @@ const storage = multer.diskStorage({
   }
 })
 
-router.post('', multer({ storage }).single('image'), (req, res, next)=>{
+router.post('',
+  isAuthenticated,
+  multer({ storage })
+  .single('image'), (req, res, next)=>{
   const url = req.protocol + '://' + req.get('host')
   const post = new Post({
     title: req.body.title,
@@ -86,7 +91,10 @@ router.get('/:id', (req, res)=>{
   })
 })
 
-router.patch('/:id', multer({ storage }).single('image'), (req, res)=> {
+router.patch('/:id',
+  isAuthenticated,
+  multer({ storage })
+  .single('image'), (req, res)=> {
   let imagePath
   if (req.file) {
     const url = req.protocol + '://' + req.get('host')
@@ -111,7 +119,7 @@ router.patch('/:id', multer({ storage }).single('image'), (req, res)=> {
     })
 })
 
-router.delete('/:id', (req, res)=> {
+router.delete('/:id', isAuthenticated, (req, res)=> {
   const postId = req.params.id
   Post.deleteOne({ _id: postId })
     .then(()=> {

@@ -5,23 +5,28 @@ import { AuthData } from './auth.model'
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+  private token: string
   private urlPath = 'http://localhost:3000/api/user'
 
   constructor (private http: HttpClient){}
 
+  getToken () {
+    return this.token
+  }
+
   createUser (email: string, password: string) {
     const authData: AuthData = { email, password }
     this.http.post(`${this.urlPath}/signup`, authData)
-      .subscribe((result)=> {
-        console.log(result)
+      .subscribe((response)=> {
+        console.log(response)
       })
   }
 
-  loginUser (email: string, password: string) {
+  login (email: string, password: string) {
     const authData: AuthData = { email, password }
-    this.http.post(`${this.urlPath}/login`, authData)
-    .subscribe((result)=> {
-      console.log(result)
+    this.http.post<{ message: string, token: string }>(`${this.urlPath}/login`, authData)
+    .subscribe((response)=> {
+      const token = response.token
     })
   }
 }
