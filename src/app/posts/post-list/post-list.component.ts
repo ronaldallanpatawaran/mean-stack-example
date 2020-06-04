@@ -3,6 +3,7 @@ import { Subscription } from 'rxjs'
 
 import { Post, Paginator } from '../post.model';
 import { PostsService } from '../post.service'
+import { AuthService } from '../../auth/auth.service';
 
 @Component({
   selector: 'post-app-list',
@@ -11,6 +12,7 @@ import { PostsService } from '../post.service'
 })
 export class PostListComponent implements OnInit, OnDestroy {
   private postsSubs: Subscription
+  private authStatusSubs: Subscription
 
   buttonEditTxt = 'Edit'
   buttonDeleteTxt = 'Delete'
@@ -21,17 +23,30 @@ export class PostListComponent implements OnInit, OnDestroy {
   currentPage = 1
   totalPosts = 0
   pageSizeOption = [1, 2, 5, 10]
+  userId: string
+  userIsAuthenticated = false
 
-  constructor (public postsService: PostsService) {}
+  constructor (
+    public postsService: PostsService,
+    private authService: AuthService
+    ) {}
 
   ngOnInit () {
     this.isLoading = true
     this.postsService.getPosts(this.currentPage, this.postPerpage)
+    this.userId = this.authService.getUserId()
     this.postsSubs = this.postsService.getPostUpdateListener()
       .subscribe((postData: { posts: Post[], postCount: number })=> {
         this.isLoading = false
         this.totalPosts = postData.postCount
         this.posts = postData.posts
+      })
+    this.userIsAuthenticated = this.authService.getIsAuth()
+    this.authService
+      .getAuthStatusListener()
+      .subscribe((isAuthenticated)=> {
+        this.userIsAuthenticated = isAuthenticated
+        this.userId = this.authService.getUserId()
       })
   }
 

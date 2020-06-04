@@ -10,7 +10,7 @@ const mimeTypeMap = {
 }
 
 const Post = require('../models/post')
-const isAuthenticated = require('../middlewares/isAuthenticated')
+const checkAuthentication = require('../middlewares/check-authentication')
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -29,14 +29,15 @@ const storage = multer.diskStorage({
 })
 
 router.post('',
-  isAuthenticated,
+  checkAuthentication,
   multer({ storage })
   .single('image'), (req, res, next)=>{
   const url = req.protocol + '://' + req.get('host')
   const post = new Post({
     title: req.body.title,
     content: req.body.content,
-    imagePath: url + '/images/' + req.file.filename
+    imagePath: url + '/images/' + req.file.filename,
+    creator: req.userData.userId
   })
   post.save().then((createdPost)=> {
     res.status(201)
@@ -54,7 +55,7 @@ router.post('',
 })
 
 router.get('/', (req, res)=>{
-  const currentPage = req.query.page ? +req.query.page : 0
+  const currentPage = req.query.page ? +req.query.page : 1
   const pageSize = req.query.pageSize ? +req.query.pageSize : 1000
 
   Post.find()
@@ -92,7 +93,7 @@ router.get('/:id', (req, res)=>{
 })
 
 router.patch('/:id',
-  isAuthenticated,
+  checkAuthentication,
   multer({ storage })
   .single('image'), (req, res)=> {
   let imagePath
@@ -110,24 +111,38 @@ router.patch('/:id',
         imagePath: imagePath
       }
     )
-    Post.updateOne({_id: req.body.id}, post).then((result)=> {
-      res.status(200)
-      .json({
-        message: 'Post successfully updated!',
-        postId: req.params.id
-      })
+    Post.updateOne({_id: req.body.id, creator: req.userData.userId}, post).then((result)=> {
+      if (result.nModified > 0) {
+        res.status(200)
+        .json({
+          message: 'Post successfully updated!',
+          postId: req.params.id
+        })
+      } else {
+        res.status(401)
+        .json({
+          message: 'Not Authorized!'
+        })
+      }
     })
 })
 
-router.delete('/:id', isAuthenticated, (req, res)=> {
+router.delete('/:id', checkAuthentication, (req, res)=> {
   const postId = req.params.id
-  Post.deleteOne({ _id: postId })
-    .then(()=> {
-      res.status(200)
-      .json({
-        message: 'Post successfully deleted!',
-        postId
-      })
+  Post.deleteOne({ _id: postId, creator: req.userData.userId })
+    .then((result)=> {
+      if (result.n > 0) {
+        res.status(200)
+        .json({
+          message: 'Post successfully deleted!',
+          postId: req.params.id
+        })
+      } else {
+        res.status(401)
+        .json({
+          message: 'Not Authorized!'
+        })
+      }
     })
 })
 

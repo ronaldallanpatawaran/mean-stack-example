@@ -48,7 +48,8 @@ router.post('/login', (req, res, next) => {
         return res.status(200).json({
           message: 'Auth successful!',
           token: token,
-          expiresIn: 3600
+          expiresIn: 3600,
+          userId: user._id
         })
       } else {
         return res.status(401).json({
