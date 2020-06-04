@@ -55,6 +55,8 @@ export class PostListComponent implements OnInit, OnDestroy {
     this.postsService.deletePost(id).subscribe(()=>{
       this.isLoading = false
       this.postsService.getPosts(this.currentPage, this.postPerpage)
+    }, () => {
+      this.isLoading = false
     })
   }
 
@@ -67,6 +69,8 @@ export class PostListComponent implements OnInit, OnDestroy {
       .subscribe((postData: { posts: Post[], postCount: number })=> {
         this.isLoading = false
         this.posts = postData.posts
+      }, ()=> {
+        this.isLoading = false
       })
   }
 

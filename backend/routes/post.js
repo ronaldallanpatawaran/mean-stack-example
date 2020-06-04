@@ -39,19 +39,26 @@ router.post('',
     imagePath: url + '/images/' + req.file.filename,
     creator: req.userData.userId
   })
-  post.save().then((createdPost)=> {
-    res.status(201)
-      .json({
-        message: 'Post added successfully',
-        post: {
-          id: createdPost._id,
-          title: createdPost.title,
-          content: createdPost.content,
-          imagePath: createdPost.imagePath,
-          __v: createdPost.__v
-        }
-      })
-  })
+  post.save()
+    .then((createdPost)=> {
+      res.status(201)
+        .json({
+          message: 'Post added successfully',
+          post: {
+            id: createdPost._id,
+            title: createdPost.title,
+            content: createdPost.content,
+            imagePath: createdPost.imagePath,
+            __v: createdPost.__v
+          }
+        })
+    })
+    .catch(error=> {
+      res.status(500)
+        .json({
+          message: 'Creating post failed!'
+        })
+    })
 })
 
 router.get('/', (req, res)=>{
@@ -71,6 +78,12 @@ router.get('/', (req, res)=>{
         message: 'Post fetched successfully!',
         posts: fetchedDocuments,
         postCount
+      })
+  })
+  .catch(error=> {
+    res.status(500)
+      .json({
+        message: 'Couldn\'t get posts!'
       })
   })
 })
@@ -112,20 +125,27 @@ router.patch('/:id',
         creator: req.userData.userId
       }
     )
-    Post.updateOne({_id: req.body.id, creator: req.userData.userId}, post).then((result)=> {
-      if (result.nModified > 0) {
-        res.status(200)
-        .json({
-          message: 'Post successfully updated!',
-          postId: req.params.id
-        })
-      } else {
-        res.status(401)
-        .json({
-          message: 'Not Authorized!'
-        })
-      }
-    })
+    Post.updateOne({_id: req.body.id, creator: req.userData.userId}, post)
+      .then((result)=> {
+        if (result.nModified > 0) {
+          res.status(200)
+          .json({
+            message: 'Post successfully updated!',
+            postId: req.params.id
+          })
+        } else {
+          res.status(401)
+          .json({
+            message: 'Not Authorized!'
+          })
+        }
+      })
+      .catch(error=> {
+        res.status(500)
+          .json({
+            message: 'Couldn\'t update post!'
+          })
+      })
 })
 
 router.delete('/:id', checkAuthentication, (req, res)=> {
@@ -144,6 +164,12 @@ router.delete('/:id', checkAuthentication, (req, res)=> {
           message: 'Not Authorized!'
         })
       }
+    })
+    .catch(error=> {
+      res.status(500)
+        .json({
+          message: 'Couldn\'t delete post!'
+        })
     })
 })
 
