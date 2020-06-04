@@ -48,7 +48,7 @@ export class PostCreateComponent implements OnInit {
         vm.isLoading = true
         this.postsService.getPost(vm.postId).subscribe(postData => {
           vm.isLoading = false
-          vm.post = { id: postData.posts._id, title: postData.posts.title, content: postData.posts.content, imagePath: postData.posts.imagePath }
+          vm.post = { id: postData.posts._id, title: postData.posts.title, content: postData.posts.content, imagePath: postData.posts.imagePath, creator: postData.posts.creator }
           vm.form.setValue({
             title: vm.post.title,
             content: vm.post.content,

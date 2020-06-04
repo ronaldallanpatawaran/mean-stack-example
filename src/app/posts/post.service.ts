@@ -47,7 +47,7 @@ export class PostsService {
   }
 
   getPost (id: string) {
-    return this.http.get<{ message: string, posts: { _id: string, title: string, content: string, imagePath: string } }>(`${this.urlPath}/${id}`)
+    return this.http.get<{ message: string, posts: { _id: string, title: string, content: string, imagePath: string, creator: string } }>(`${this.urlPath}/${id}`)
   }
 
   addPost (title: string, content: string, image: File) {
@@ -74,7 +74,8 @@ export class PostsService {
         id,
         title,
         content,
-        imagePath: image
+        imagePath: image,
+        creator: null
       }
     }
     this.http.patch<{ message: string, posts: Post[] }>(`${this.urlPath}/${id}`, postData)
