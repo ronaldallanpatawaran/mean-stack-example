@@ -11,8 +11,6 @@ export class AppComponent implements OnInit {
 
   constructor (private authService: AuthService) {}
 
-  title = 'mean-course'
-
   ngOnInit(): void {
     this.authService.autoAuthUser()
   }

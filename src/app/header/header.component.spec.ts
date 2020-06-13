@@ -1,10 +1,10 @@
 import { TestBed, async } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
+
+import { HeaderComponent } from './header.component';
 import { HttpClientModule } from '@angular/common/http';
 
-import { AppComponent } from './app.component';
-
-describe('AppComponent', () => {
+describe('HeaderComponent', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       imports: [
@@ -12,13 +12,13 @@ describe('AppComponent', () => {
         HttpClientModule
       ],
       declarations: [
-        AppComponent
+        HeaderComponent
       ],
     }).compileComponents();
   }));
 
   it('should create the app', () => {
-    const fixture = TestBed.createComponent(AppComponent);
+    const fixture = TestBed.createComponent(HeaderComponent);
     const app = fixture.componentInstance;
     expect(app).toBeTruthy();
   });
