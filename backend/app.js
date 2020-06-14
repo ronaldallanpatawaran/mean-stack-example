@@ -28,7 +28,7 @@ mongoose.connect(
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(cors())
-app.use('/public/images', express.static(path.join('public', 'images')))
+app.use('/public/images', express.static(path.join('public/images')))
 
 app.use((req, res, next)=> {
   res.setHeader(

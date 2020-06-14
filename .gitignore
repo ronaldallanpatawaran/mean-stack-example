@@ -45,8 +45,12 @@ testem.log
 .DS_Store
 Thumbs.db
 
-/backend/images
+/backend/public/images
 
 
 #environment variables
 .env
+
+.zip
+
+dist
