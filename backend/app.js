@@ -27,20 +27,11 @@ mongoose.connect(
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
-app.use(cors())
+app.use(cors({
+  allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'],
+  methods: ['POST', 'GET', 'PATCH', 'DELETE', 'OPTIONS']
+}))
 app.use('/public/images', express.static(path.join('public/images')))
-
-app.use((req, res, next)=> {
-  res.setHeader(
-    'Access-Control-Allow-Headers',
-    'Origin, X-Requested-With, Content-Type, Accept, Authorization'
-    )
-  res.setHeader(
-    'Access-Control-Allow-Methods',
-    'GET, POST, PATCH, DELETE, OPTIONS'
-    )
-  return next()
-})
 
 app.use('/api/posts', postsRoutes)
 app.use('/api/user', userRoutes)
